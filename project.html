@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Music Player</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark {
+      background: #181818;
+      color: #eee;
+    }
+    .player {
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      background: white;
+    }
+    body.dark .player {
+      background: #242424;
+    }
+    h2 {
+      text-align: center;
+    }
+    .controls button {
+      margin: 5px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .playlist {
+      margin-top: 20px;
+    }
+    .playlist-item {
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .playlist-item:hover {
+      background: #ddd;
+    }
+    body.dark .playlist-item:hover {
+      background: #444;
+    }
+    .search-box {
+      margin: 10px 0;
+      width: 100%;
+      padding: 8px;
+    }
+    .toggle-mode {
+      float: right;
+      margin-top: -40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="player">
+    <h2>🎶 My Music Player</h2>
+    <button class="toggle-mode">🌙 Toggle Mode</button>
+
+    <audio id="audio" controls style="width:100%; margin:10px 0;">
+      <source src="music/song1.mp3" type="audio/mpeg">
+      Your browser does not support audio.
+    </audio>
+
+    <div class="controls">
+      <button onclick="prevSong()">⏮ Prev</button>
+      <button onclick="playPause()">▶️/⏸</button>
+      <button onclick="nextSong()">⏭ Next</button>
+    </div>
+
+    <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+
+    <input type="text" id="search" class="search-box" placeholder="Search by title, artist, genre...">
+
+    <div class="playlist" id="playlist"></div>
+  </div>
+
+  <script>
+    const audio = document.getElementById("audio");
+    const playlistEl = document.getElementById("playlist");
+    const search = document.getElementById("search");
+
+    let songs = [
+      { title: "Song One", artist: "Artist A", genre: "Pop", file: "music/song1.mp3" },
+      { title: "Song Two", artist: "Artist B", genre: "Rock", file: "music/song2.mp3" },
+      { title: "Song Three", artist: "Artist C", genre: "Jazz", file: "music/song3.mp3" }
+    ];
+
+    let currentIndex = 0;
+
+    function loadPlaylist(filter="") {
+      playlistEl.innerHTML = "";
+      songs
+        .filter(song => song.title.toLowerCase().includes(filter) || 
+                        song.artist.toLowerCase().includes(filter) ||
+                        song.genre.toLowerCase().includes(filter))
+        .forEach((song, index) => {
+          let div = document.createElement("div");
+          div.classList.add("playlist-item");
+          div.textContent = ${song.title} - ${song.artist} [${song.genre}];
+          div.onclick = () => playSong(index);
+          playlistEl.appendChild(div);
+        });
+    }
+
+    function playSong(index) {
+      currentIndex = index;
+      audio.src = songs[currentIndex].file;
+      audio.play();
+    }
+
+    function playPause() {
+      if (audio.paused) audio.play();
+      else audio.pause();
+    }
+
+    function nextSong() {
+      currentIndex = (currentIndex + 1) % songs.length;
+      playSong(currentIndex);
+    }
+
+    function prevSong() {
+      currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+      playSong(currentIndex);
+    }
+
+    document.getElementById("volume").addEventListener("input", e => {
+      audio.volume = e.target.value;
+    });
+
+    search.addEventListener("input", e => {
+      loadPlaylist(e.target.value.toLowerCase());
+    });
+
+    document.querySelector(".toggle-mode").onclick = () => {
+      document.body.classList.toggle("dark");
+    };
+
+    // Load default playlist
+    loadPlaylist();
+  </script>
+</body>
+</html>
+
